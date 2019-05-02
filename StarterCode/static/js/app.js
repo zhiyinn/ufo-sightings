@@ -1,10 +1,8 @@
-// //from data.js
- var tableData = data;
+// from data.js
+var tableData = data;
 
- 
 var tbody = d3.select("tbody");
 
-//tabulate data on webpage
 function appendData(obj) {
     var row = tbody.append("tr");
     Object.entries(obj).forEach(([key, value]) => {
@@ -12,21 +10,36 @@ function appendData(obj) {
     })
 };
 
-// append all tr's and td's
+// append table data
 data.forEach(appendData);
 
-//select the web user's input and the filter button
-var dateInput = d3.select("#datetime")
-var button = d3.select("filter-btn")
+var button = d3.select("#filter-btn");
 
-function clickSelect(){
-    //print input value
-    console.log(dateInput.property("value"));
-    //show only filtered data
-    var new_table = tableData.filter(sighting => sighting.datetime===dateInput.property("value"))
-    //display the new table
-    appendData(new_table);
-}
+// function runs when filter button is clicked
+button.on("click", function() {
+    d3.event.preventDefault();
 
-// event listener to handle change and click
-dateInput.on("change", clickSelect)
+    var dateInput = d3.select("#datetime");
+    var datetime = dateInput.property("value");
+    
+    //create empty dict for new filtered inputs
+    var filterInputs = {};
+
+    if (datetime !== "") {
+        filterInputs.datetime = datetime;
+    }
+
+    //function to filter for date input
+    var filtered = tableData.filter(obj => {
+        var criteria = true;
+        Object.entries(filterInputs).forEach(([key, value]) => {
+            criteria = criteria && (obj[key] === value);
+        });
+        return criteria;
+    });
+
+    tbody.html("");
+
+    //return new filtered results
+    filtered.forEach(appendData);
+});
